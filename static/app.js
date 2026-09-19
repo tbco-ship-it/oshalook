@@ -88,7 +88,8 @@
     // company list and worksite shard load in parallel; whichever finishes first is shown first
     const first = norm(words[0] || '');
     const rest = words.slice(1).map(norm).filter(Boolean);
-    const coP = loadCompanies().then(list => { cos = list.filter(c => c.q.includes(nq)).slice(0, 3); }).catch(() => { coFailed = true; }).then(render);
+    const toks = words.map(norm).filter(Boolean);
+    const coP = loadCompanies().then(list => { cos = list.filter(c => c.q.includes(nq) || toks.every(t => c.q.includes(t))).sort((a, b) => (b.q.includes(nq) - a.q.includes(nq)) || (b.emp || 0) - (a.emp || 0)).slice(0, 3); }).catch(() => { coFailed = true; }).then(render);
     const estP = shard((first + 'zz').slice(0, 2)).then(ests => { hits = ests.filter(e => e.q.startsWith(first) && rest.every(w => (e.q + norm(e.city) + e.st.toLowerCase() + e.co).includes(w)) && (!place || (norm(e.city) + e.st.toLowerCase()).includes(place))).sort((a, b) => (b.emp || 0) - (a.emp || 0)); }).catch(() => { estFailed = true; }).then(render);
     await Promise.all([coP, estP]);
   }
