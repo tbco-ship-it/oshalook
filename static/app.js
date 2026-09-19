@@ -57,7 +57,7 @@
     const box = $('co-sites'); if (!box) return;
     let ms; try { ms = await members(c.slug); } catch (e) { box.textContent = 'Worksite list could not be loaded.'; return; }
     const place = norm($('place')?.value || '');
-    const rows = ms.filter(m => !place || (norm(m.city) + m.st.toLowerCase() + norm(m.name)).includes(place)).sort((a, b) => (b.emp || 0) - (a.emp || 0));
+    const rows = ms.filter(m => !place || (place.length === 2 ? m.st.toLowerCase() === place : (norm(m.city) + ' ' + norm(m.name)).includes(place))).sort((a, b) => (b.emp || 0) - (a.emp || 0));
     const li = m => `<li><a href="${m.path ? base + esc(m.path) : base + 'company/' + esc(c.slug) + '/'}"><span class="nm">${esc(m.name)}<small class="rule">${esc(m.city)}, ${esc(m.st)} · ${n0(m.emp)} workers · ${m.status === 'included' ? 'included in rate' : m.status === 'screened_out' ? 'excluded by plausibility check' : 'missing fields'}</small></span><span class="meta"><b>TRC ${fmt(m.trc)}</b>${m.deaths ? `<small>${m.deaths} fatalit${m.deaths === 1 ? 'y' : 'ies'}</small>` : ''}</span></a></li>`;
     box.className = '';
     box.innerHTML = `<p class="muted small">${rows.length} of ${ms.length} matched worksites${place ? ' near “' + esc($('place').value.trim()) + '”' : ''}, largest first.</p><ul class="list fee">${rows.slice(0, 50).map(li).join('')}</ul>${rows.length > 50 ? `<p class="muted small">Showing 50 — download the full list below.</p>` : ''}`;
@@ -90,7 +90,7 @@
     const rest = words.slice(1).map(norm).filter(Boolean);
     const toks = words.map(norm).filter(Boolean);
     const coP = loadCompanies().then(list => { cos = list.filter(c => c.q.includes(nq) || toks.every(t => c.q.includes(t))).sort((a, b) => (b.q.includes(nq) - a.q.includes(nq)) || (b.emp || 0) - (a.emp || 0)).slice(0, 3); }).catch(() => { coFailed = true; }).then(render);
-    const estP = shard((first + 'zz').slice(0, 2)).then(ests => { hits = ests.filter(e => e.q.startsWith(first) && rest.every(w => (e.q + norm(e.city) + e.st.toLowerCase() + e.co).includes(w)) && (!place || (norm(e.city) + e.st.toLowerCase()).includes(place))).sort((a, b) => (b.emp || 0) - (a.emp || 0)); }).catch(() => { estFailed = true; }).then(render);
+    const estP = shard((first + 'zz').slice(0, 2)).then(ests => { hits = ests.filter(e => e.q.startsWith(first) && rest.every(w => (e.q + norm(e.city) + e.st.toLowerCase() + e.co).includes(w)) && (!place || (place.length === 2 ? e.st.toLowerCase() === place : norm(e.city).includes(place)))).sort((a, b) => (b.emp || 0) - (a.emp || 0)); }).catch(() => { estFailed = true; }).then(render);
     await Promise.all([coP, estP]);
   }
   function close() { ++seq; menu.hidden = true; active = -1; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); }
