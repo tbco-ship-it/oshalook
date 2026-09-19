@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ c.name }} injury rate {{ latest }} — TRC {{ c.trc|fmt }}{% if c.bench %} vs industry {{ c.bench.trc_med|fmt }}{% endif %}, {{ c.n_est }} sites, {{ c.deaths }} fatalities | {{ site }}{% endblock %}
+{% block description %}{{ c.name }} reported {{ '{:,}'.format(c.cases) }} recordable workplace injuries and illnesses across {{ c.n_est }} OSHA-filing sites in {{ latest }} ({{ '{:,}'.format(c.emp) }} workers): TRC {{ c.trc|fmt }}, DART {{ c.dart|fmt }}{% if c.deaths %}, {{ c.deaths }} deaths{% endif %}. Industry: {{ c.industry }}. Site-by-site rates and three-year trend.{% endblock %}
+{% block head %}<script type="application/ld+json">{{ {"@context":"https://schema.org","@type":"Dataset","name":c.name ~ " workplace injury record " ~ latest,"description":"Pooled OSHA Form 300A data across " ~ c.n_est ~ " establishments","creator":{"@type":"Organization","name":"Occupational Safety and Health Administration"},"license":"https://www.usa.gov/government-works","url":origin ~ base ~ path}|tojson }}</script>
+<script type="application/ld+json">{{ {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is " ~ c.name ~ "'s workplace injury rate?","acceptedAnswer":{"@type":"Answer","text":"Across " ~ c.n_est ~ " sites that filed OSHA Form 300A for " ~ latest ~ ", " ~ c.name ~ " reported a total recordable case rate of " ~ c.trc|fmt ~ " per 100 full-time workers and a DART rate of " ~ c.dart|fmt ~ (", against an industry median of " ~ c.bench.trc_med|fmt if c.bench else "") ~ "."}}]}|tojson }}</script>{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › <a href="{{ base }}companies/">Companies</a> › {{ c.name }}</nav>
+<h1>{{ c.name }} injury rate</h1>
+<section class="sheet {{ c.cls }}">
+  <p class="sheet-label">{{ c.n_est }} filing sites · {{ c.industry }} · {{ c.states|length }} state{{ '' if c.states|length == 1 else 's' }}</p>
+  <div class="sheet-num"><span class="num">{{ c.trc|fmt }}</span><span class="pct">TRC · {{ latest }}</span></div>
+  <p class="sheet-title">{{ c.label }}{% if c.bench %} — industry median {{ c.bench.trc_med|fmt }}{% endif %}</p>
+  <p class="sheet-text">{{ '{:,}'.format(c.cases) }} recordable cases among {{ '{:,}'.format(c.emp) }} workers, hours-weighted across all sites. DART {{ c.dart|fmt }}.{% if c.deaths %} <b>{{ c.deaths }} workplace death{{ '' if c.deaths == 1 else 's' }} reported.</b>{% endif %}</p>
+  <table class="tbl spec mini"><thead><tr><th>Year</th><th>Sites</th><th>Workers</th><th>TRC</th><th>DART</th><th>Cases</th><th>Deaths</th></tr></thead><tbody>
+  {% for yr in years|reverse %}{% set r = c.by_year.get(yr) %}<tr><th>{{ yr }}</th>{% if r %}<td>{{ r.n }}</td><td>{{ '{:,}'.format(r.emp) }}</td><td>{{ r.trc|fmt }}</td><td>{{ r.dart|fmt }}</td><td>{{ '{:,}'.format(r.cases) }}</td><td>{{ r.deaths }}</td>{% else %}<td colspan="6" class="muted">no filings</td>{% endif %}</tr>{% endfor %}
+  </tbody></table>
+  <p class="sheet-actions">{% if c.naics in industries %}<a class="next" href="{{ base }}industry/{{ c.naics }}/">{{ c.industry }} benchmark</a>{% endif %}<a class="next" href="https://www.osha.gov/ords/imis/establishment.search?establishment={{ c.name|urlencode }}" rel="noopener" target="_blank">OSHA inspections & citations</a></p>
+</section>
+<div class="ad-slot"><!-- ad: company --></div>
+{% if c.ests %}<div class="sec"><div class="sec-h"><h2>Sites with 250+ workers, largest first</h2><span class="muted small">{{ c.ests|length }} of {{ c.n_est }}</span></div>
+<ul class="list fee">{% for e in c.ests %}{% set y = e.years[latest] %}<li><a href="{{ base }}{{ e.path }}"><span class="nm">{{ e.name }}<small class="rule">{{ e.city }}, {{ e.st }} · {{ '{:,}'.format(y.emp) }} workers · {{ y.cases }} cases{% if y.deaths %} · {{ y.deaths }} death{{ '' if y.deaths == 1 else 's' }}{% endif %}</small></span><span class="meta"><b>TRC {{ y.trc|fmt }}</b><small>DART {{ y.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
+<section class="prose">
+  <h2>About this record</h2>
+  <p>Sites are grouped by the parent company name employers typed into OSHA's system, so subsidiaries filed under another name are not included and the same company can appear twice under variant names. Smaller sites (under 250 workers) count toward the totals but do not get their own page; search them from the <a href="{{ base }}">home page</a>. A company-wide rate hides variation — a warehouse and a head office in the same filing pool look very different.</p>
+</section>
+{% endblock %}

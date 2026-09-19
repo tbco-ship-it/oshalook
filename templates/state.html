@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ s.name }} workplace injury rates {{ latest }} — median TRC {{ s.trc_med|fmt }} across {{ s.n }} sites, largest employers | {{ site }}{% endblock %}
+{% block description %}OSHA 300A injury data for {{ s.name }}: {{ s.n }} filing sites, median TRC {{ s.trc_med|fmt }}, hours-weighted {{ s.trc_pooled|fmt }}, {{ s.deaths }} workplace fatalities in {{ latest }}. The state's largest worksites and their rates.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › <a href="{{ base }}states/">States</a> › {{ s.name }}</nav>
+<h1>{{ s.name }} workplace injury rates</h1>
+<section class="sheet quiet">
+  <p class="sheet-label">{{ s.n }} sites filing for {{ latest }}</p>
+  <div class="sheet-num"><span class="num">{{ s.trc_med|fmt }}</span><span class="pct">median TRC</span></div>
+  <p class="sheet-title">Hours-weighted {{ s.trc_pooled|fmt }} · DART median {{ s.dart_med|fmt }} · {{ s.deaths }} death{{ '' if s.deaths == 1 else 's' }}</p>
+  <p class="sheet-text">{{ '{:,}'.format(s.cases) }} recordable cases across {{ '{:,}'.format(s.hrs) }} hours. U.S. median {{ us.trc_med|fmt }}.</p>
+</section>
+<div class="ad-slot"><!-- ad: state --></div>
+<div class="sec"><div class="sec-h"><h2>Largest worksites in {{ s.name }}</h2></div>
+<ul class="list fee">{% for e in s.ests %}{% set y = e.years[latest] %}<li><a href="{{ base }}{{ e.path }}"><span class="nm">{{ e.name }}<small class="rule">{{ e.city }} · {{ e.industry }} · {{ '{:,}'.format(y.emp) }} workers</small></span><span class="meta"><b>TRC {{ y.trc|fmt }}</b><small>{{ y.cases }} cases{% if y.deaths %} · {{ y.deaths }} deaths{% endif %}</small></span></a></li>{% endfor %}</ul></div>
+{% endblock %}

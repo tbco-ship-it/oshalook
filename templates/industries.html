@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Injury rates by industry — median TRC and DART for {{ rows|length }} NAICS industries from OSHA 300A data ({{ latest }}) | {{ site }}{% endblock %}
+{% block description %}Every industry with at least 20 OSHA 300A filings, ranked by median total recordable case rate, with DART and fatality counts.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › Industries</nav>
+<h1>Injury rates by industry</h1>
+<p class="prose">Median TRC across sites filing for {{ latest }}, most hazardous first. Click an industry for quartiles, largest employers and sites.</p>
+<div class="ad-slot"><!-- ad: industries --></div>
+<ul class="list fee">{% for i in rows %}<li><a href="{{ base }}{{ i.path }}"><span class="nm">{{ i.name }}<small class="rule">NAICS {{ i.code }} · {{ i.n }} sites{% if i.deaths %} · {{ i.deaths }} deaths{% endif %}</small></span><span class="meta"><b>TRC {{ i.trc_med|fmt }}</b><small>DART {{ i.dart_med|fmt }}</small></span></a></li>{% endfor %}</ul>
+{% endblock %}

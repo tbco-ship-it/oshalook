@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Data & method | {{ site }}{% endblock %}
+{% block content %}<h1>Data & method</h1><div class="prose">
+<p><b>Source.</b> OSHA Injury Tracking Application, <a href="{{ source.url }}" rel="noopener">Form 300A summary data</a> for calendar years {{ source.years|join(', ') }}, downloaded {{ source.fetched }}. Public domain. {{ '{:,}'.format(n_filings) }} establishments filed for {{ latest }}.</p>
+<p><b>Rates.</b> TRC = (days-away + restricted/transfer + other recordable cases) × 200,000 ÷ total hours worked; DART = (days-away + restricted/transfer) × 200,000 ÷ hours. Computed per establishment and per year exactly as OSHA and BLS define them.</p>
+<p><b>Validity filter.</b> A filing gets no rate when hours per employee fall outside 300–4,000 or recordable cases exceed twice the headcount — the typo patterns that dominate ITA data errors. Those sites still appear in search with their raw counts.</p>
+<p><b>Benchmarks.</b> Median and quartiles of establishment TRC/DART within the same 6-digit NAICS code, from these filings, when at least 20 sites filed; otherwise the 4-, 3- or 2-digit NAICS group. "Hours-weighted" pools all cases and hours in the group. Because only employers required to report are included, benchmarks sit above BLS survey rates for the same industry.</p>
+<p><b>Companies.</b> Sites are grouped by the parent company name as filed (normalized for punctuation and suffixes such as Inc. or LLC). Company pages need 5 or more filing sites; establishment pages need 250 or more average employees. Everything else is searchable.</p>
+<p><b>Refresh.</b> OSHA posts each year's filings after the March 2 deadline and updates them through the year; the site is rebuilt when a new file lands.</p>
+</div>{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ i.name }} injury rate benchmark {{ latest }} — median TRC {{ i.trc_med|fmt }}, DART {{ i.dart_med|fmt }} across {{ i.n }} sites (NAICS {{ i.code }}) | {{ site }}{% endblock %}
+{% block description %}Injury and illness rate benchmark for {{ i.name }} (NAICS {{ i.code }}) from {{ i.n }} OSHA 300A filings: median TRC {{ i.trc_med|fmt }}, upper quartile {{ i.trc_q3|fmt }}, hours-weighted {{ i.trc_pooled|fmt }}, {{ i.deaths }} fatalities. Largest employers and sites in the industry.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › <a href="{{ base }}industries/">Industries</a> › {{ i.name }}</nav>
+<h1>{{ i.name }} injury rate</h1>
+<section class="sheet quiet">
+  <p class="sheet-label">NAICS {{ i.code }} · {{ i.n }} sites filing for {{ latest }}</p>
+  <div class="sheet-num"><span class="num">{{ i.trc_med|fmt }}</span><span class="pct">median TRC</span></div>
+  <p class="sheet-title">Quartiles {{ i.trc_q1|fmt }} – {{ i.trc_med|fmt }} – {{ i.trc_q3|fmt }} · hours-weighted {{ i.trc_pooled|fmt }}</p>
+  <p class="sheet-text">Median DART {{ i.dart_med|fmt }} (upper quartile {{ i.dart_q3|fmt }}). {{ '{:,}'.format(i.cases) }} recordable cases and {{ i.deaths }} death{{ '' if i.deaths == 1 else 's' }} reported across {{ '{:,}'.format(i.hrs) }} hours. All-industry median {{ us.trc_med|fmt }}.</p>
+</section>
+<div class="ad-slot"><!-- ad: industry --></div>
+{% if i.companies %}<div class="sec"><div class="sec-h"><h2>Largest companies in this industry</h2></div>
+<ul class="list fee">{% for c in i.companies %}<li><a href="{{ base }}{{ c.path }}"><span class="nm">{{ c.name }}<small class="rule">{{ c.n_est }} sites · {{ '{:,}'.format(c.emp) }} workers{% if c.deaths %} · {{ c.deaths }} deaths{% endif %}</small></span><span class="meta"><b>TRC {{ c.trc|fmt }}</b><small>DART {{ c.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
+{% if i.ests %}<div class="sec"><div class="sec-h"><h2>Largest sites</h2></div>
+<ul class="list fee">{% for e in i.ests %}{% set y = e.years[latest] %}<li><a href="{{ base }}{{ e.path }}"><span class="nm">{{ e.name }}<small class="rule">{{ e.city }}, {{ e.st }} · {{ '{:,}'.format(y.emp) }} workers · {{ y.cases }} cases</small></span><span class="meta"><b>TRC {{ y.trc|fmt }}</b><small>DART {{ y.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
+<section class="prose"><h2>Using the benchmark</h2><p>Compare a site's TRC with the median and upper quartile above, not with the all-industry number: a 3.0 is excellent in meatpacking and poor in software. Benchmarks are computed from the filings on this site (calendar {{ latest }}, employers required to report), so they run higher than BLS all-employer survey rates for the same industry, which include small and low-hazard sites that do not file.</p></section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}TRC and DART rates explained — how OSHA injury rates are calculated and what counts as "good" | {{ site }}{% endblock %}
+{% block description %}Total Recordable Case rate and DART rate: the 200,000-hour formula, what makes an injury recordable, typical rates by industry, and why a zero can mean under-reporting rather than safety.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › TRC & DART explained</nav>
+<h1>TRC and DART explained</h1>
+<div class="prose">
+<h2>The formula</h2>
+<p><b>Rate = cases × 200,000 ÷ hours worked.</b> 200,000 is 100 employees working 40 hours for 50 weeks, so every rate reads as "cases per 100 full-time workers per year". A plant with 480 workers, 960,000 hours and 12 recordable cases has a TRC of 2.5.</p>
+<h2>What is recordable</h2>
+<p>An injury or illness goes on the OSHA 300 log when it is work-related and results in death, days away from work, restricted work or job transfer, medical treatment beyond first aid, loss of consciousness, or a significant diagnosis by a physician. Bandaging a cut is first aid and not recordable; stitches are. Employers with 10 or fewer employees, and those in listed low-hazard industries, keep no log at all.</p>
+<h2>TRC vs. DART</h2>
+<p><b>TRC</b> (total recordable cases, sometimes TRIR) counts every recordable case. <b>DART</b> counts only cases with Days Away, Restricted duty or job Transfer — the more serious subset. A site with TRC 5 and DART 1 mostly logs treated-and-back-to-work injuries; TRC 5 and DART 4 means most injuries kept people off their normal job.</p>
+<h2>What is typical</h2>
+<p>Among {{ latest }} filers on this site the median establishment reported TRC {{ us.trc_med|fmt }} and the hours-weighted rate was {{ us.trc_pooled|fmt }}. Industries differ by an order of magnitude — see the <a href="{{ base }}industries/">industry table</a>. Contractors bidding on large projects are often screened out above a TRC of 3.0 or so; insurers use the same numbers to set workers' compensation experience modifiers.</p>
+<h2>Why a low number is not proof</h2>
+<p>The log is self-reported and OSHA reviews it only during an inspection. Under-recording — incentive programs that discourage reporting, misclassifying cases as first aid, sending injured workers to "light duty" without logging a restriction — is well documented. Read a zero at a 2,000-person manufacturing site with skepticism, and look at DART, fatalities and the three-year trend rather than one year's TRC.</p>
+</div>
+{% endblock %}

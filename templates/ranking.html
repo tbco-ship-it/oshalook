@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | {{ site }}{% endblock %}
+{% block description %}{{ title }}, from OSHA Form 300A filings. Companies with at least 5 filing sites{% if kind != 'deaths' %} and 5,000 workers{% endif %}.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › Rankings</nav>
+<h1>{{ title }}</h1>
+<p class="prose">{% if kind == 'worst' %}Ranked by TRC relative to the company's own industry median, so a warehouse chain is judged against warehouses. Minimum 5,000 workers across filing sites.{% elif kind == 'safest' %}Lowest hours-weighted TRC among companies with 5,000+ workers across filing sites. A very low rate can reflect excellent safety or under-recording — check the DART and fatality columns too.{% else %}Fatalities reported on Form 300A for {{ latest }}, company totals across filing sites.{% endif %} Also: <a href="{{ base }}rankings/highest-injury-rate/">highest</a> · <a href="{{ base }}rankings/lowest-injury-rate/">lowest</a> · <a href="{{ base }}rankings/most-fatalities/">fatalities</a>.</p>
+<div class="ad-slot"><!-- ad: ranking --></div>
+<ul class="list fee">{% for c in rows %}<li><a href="{{ base }}{{ c.path }}"><span class="nm">#{{ loop.index }} {{ c.name }}<small class="rule">{{ c.industry }} · {{ c.n_est }} sites · {{ '{:,}'.format(c.emp) }} workers</small></span><span class="meta"><b>{% if kind == 'deaths' %}{{ c.deaths }} death{{ '' if c.deaths == 1 else 's' }}{% else %}TRC {{ c.trc|fmt }}{% endif %}</b><small>{% if kind == 'deaths' %}TRC {{ c.trc|fmt }}{% elif c.bench %}industry {{ c.bench.trc_med|fmt }}{% endif %}</small></span></a></li>{% endfor %}</ul>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Workplace injury rates by state ({{ latest }}) | {{ site }}{% endblock %}
+{% block description %}Median and hours-weighted TRC, DART and fatalities for every state from OSHA Form 300A filings.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › States</nav>
+<h1>Workplace injury rates by state</h1>
+<div class="ad-slot"><!-- ad: states --></div>
+<ul class="list fee">{% for s in states.values()|sort(attribute='name') %}<li><a href="{{ base }}{{ s.path }}"><span class="nm">{{ s.name }}<small class="rule">{{ s.n }} sites · {{ '{:,}'.format(s.cases) }} cases · {{ s.deaths }} deaths</small></span><span class="meta"><b>TRC {{ s.trc_med|fmt }}</b><small>weighted {{ s.trc_pooled|fmt }}</small></span></a></li>{% endfor %}</ul>
+{% endblock %}

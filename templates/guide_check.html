@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}How to check a company's OSHA record — injury logs, inspections, citations and fatality reports | {{ site }}{% endblock %}
+{% block description %}The four public OSHA records on any employer and where each lives: Form 300A injury summaries, inspection and citation history, severe injury reports, and fatality investigations. What to ask for as an employee or contractor.{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › Check a company's OSHA record</nav>
+<h1>How to check a company's OSHA record</h1>
+<div class="prose">
+<h2>1. Injury and illness summary (this site)</h2>
+<p>Form 300A is the annual summary every covered establishment must post on site each February–April and submit electronically to OSHA. Search the employer on the <a href="{{ base }}">home page</a> for the rates and case counts, then compare with its industry page.</p>
+<h2>2. Inspections and citations</h2>
+<p>OSHA's establishment search at osha.gov lists every federal and state-plan inspection since 1972 with the standards cited, penalty amounts and whether the violation was serious, willful or repeat. Every establishment page here links straight to that search pre-filled with the name and state. Look at the last five years; a "willful" or "repeat" tag is the strongest warning sign in the record.</p>
+<h2>3. Severe injury reports</h2>
+<p>Since 2015 employers must report any amputation, in-patient hospitalization or eye loss within 24 hours. OSHA publishes the log (osha.gov/severeinjury) for federal-plan states, with a one-line narrative per incident.</p>
+<h2>4. Fatality investigations</h2>
+<p>Work-related deaths must be reported within 8 hours and are investigated; the inspection appears in the establishment search with "Fatality" in the type column. The Form 300A death count on this site is the employer's own tally and can differ.</p>
+<h2>Your rights</h2>
+<p>Current employees, former employees and their representatives can request the full OSHA 300 log and 301 incident reports from the employer; the employer must provide the 300 log by the end of the next business day. You can also file a confidential complaint with OSHA if hazards go unaddressed.</p>
+</div>
+{% endblock %}

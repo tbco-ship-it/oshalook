@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% set y = e.years[latest] %}
+{% block title %}{{ e.name }} ({{ e.city }}, {{ e.st }}) injury rate {{ latest }} — TRC {{ y.trc|fmt }}{% if e.bench %} vs industry {{ e.bench.trc_med|fmt }}{% endif %}, {{ y.cases }} recordable cases | {{ site }}{% endblock %}
+{% block description %}OSHA 300A record for {{ e.name }}, {{ e.city }}, {{ e.st }} ({{ e.industry }}): {{ y.cases }} recordable injuries and illnesses in {{ latest }} among {{ '{:,}'.format(y.emp) }} workers — TRC {{ y.trc|fmt }}, DART {{ y.dart|fmt }}{% if y.deaths %}, {{ y.deaths }} fatalit{{ 'y' if y.deaths == 1 else 'ies' }}{% endif %}{% if e.bench %}; industry median TRC {{ e.bench.trc_med|fmt }}{% endif %}. Three years of filings.{% endblock %}
+{% block head %}<script type="application/ld+json">{{ {"@context":"https://schema.org","@type":"Dataset","name":e.name ~ " OSHA Form 300A summary " ~ latest,"description":"Recordable injuries and illnesses, DART cases and fatalities reported to OSHA's Injury Tracking Application","spatialCoverage":e.city ~ ", " ~ e.st,"creator":{"@type":"Organization","name":"Occupational Safety and Health Administration"},"license":"https://www.usa.gov/government-works","url":origin ~ base ~ path}|tojson }}</script>{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ base }}">Home</a> › <a href="{{ base }}state/{{ e.st|lower }}/">{{ states[e.st].name if e.st in states else e.st }}</a> › {% if c %}<a href="{{ base }}{{ c.path }}">{{ c.name }}</a> › {% endif %}{{ e.name }}</nav>
+<h1>{{ e.name }} injury rate</h1>
+<section class="sheet {{ e.cls }}">
+  <p class="sheet-label">{{ e.city }}, {{ e.st }} · {{ e.industry }} · {{ e.size_label }}</p>
+  <div class="sheet-num"><span class="num">{{ y.trc|fmt }}</span><span class="pct">TRC · {{ latest }}</span></div>
+  <p class="sheet-title">{{ e.label }}{% if e.bench and y.trc is not none %} — industry median {{ e.bench.trc_med|fmt }}, worst quarter above {{ e.bench.trc_q3|fmt }}{% endif %}</p>
+  <p class="sheet-text">{{ y.cases }} recordable case{{ '' if y.cases == 1 else 's' }} among {{ '{:,}'.format(y.emp) }} workers ({{ '{:,}'.format(y.hrs) }} hours): {{ y.dafw }} with days away, {{ y.djtr }} with restricted duty or transfer, {{ y.other }} other. DART {{ y.dart|fmt }}.{% if y.deaths %} <b>{{ y.deaths }} death{{ '' if y.deaths == 1 else 's' }} reported.</b>{% endif %}{% if not y.ok %} Hours or headcount in this filing look implausible, so no rate is shown.{% endif %}</p>
+  <table class="tbl spec mini"><thead><tr><th>Year</th><th>TRC</th><th>DART</th><th>Cases</th><th>Days away</th><th>Deaths</th></tr></thead><tbody>
+  {% for yr in years|reverse %}{% set r = e.years.get(yr) %}<tr><th>{{ yr }}</th>{% if r %}<td>{{ r.trc|fmt }}</td><td>{{ r.dart|fmt }}</td><td>{{ r.cases }}</td><td>{{ '{:,}'.format(r.dafw_days) }}</td><td>{{ r.deaths }}</td>{% else %}<td colspan="5" class="muted">no filing</td>{% endif %}</tr>{% endfor %}
+  </tbody></table>
+  <p class="sheet-actions">{% if c %}<a class="next" href="{{ base }}{{ c.path }}">{{ c.name }} — all {{ c.n_est }} sites</a>{% endif %}{% if i %}<a class="next" href="{{ base }}{{ i.path }}">{{ i.name }} benchmark</a>{% endif %}<a class="next" href="https://www.osha.gov/ords/imis/establishment.search?establishment={{ e.name|urlencode }}&state={{ e.st }}" rel="noopener" target="_blank">OSHA inspections</a></p>
+</section>
+<p class="muted small">{{ e.street }}, {{ e.city }}, {{ e.st }} {{ e.zip }} · NAICS {{ e.naics }} · establishment ID {{ e.id }} · source: OSHA ITA Form 300A, filed for calendar {{ latest }}.</p>
+<div class="ad-slot"><!-- ad: establishment --></div>
+<section class="prose">
+  <h2>How to read this</h2>
+  <p>TRC = recordable cases × 200,000 ÷ hours worked, i.e. cases per 100 full-time workers. {% if e.bench %}Among {{ e.bench.n }} filings in this industry{% if e.bench_code != e.naics %} (NAICS {{ e.bench_code }} group){% endif %}, half reported {{ e.bench.trc_med|fmt }} or less and a quarter reported more than {{ e.bench.trc_q3|fmt }}.{% endif %} Rates at a single site swing with headcount — one injury at a 250-person site is a TRC of 0.4 — so read the three-year row together, and compare with the company's other sites before drawing conclusions. This is the employer's own log; OSHA does not verify it unless it inspects. <a href="{{ base }}guide/trc-dart/">More on TRC and DART</a></p>
+</section>
+{% endblock %}

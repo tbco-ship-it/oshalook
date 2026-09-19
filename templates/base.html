@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ site }}{% endblock %}</title>
+<meta name="description" content="{% block description %}Workplace injury rates (TRC, DART, fatalities) for {{ '{:,}'.format(n_filings) }} U.S. establishments from OSHA Form 300A filings, compared with their industry. Look up an employer before you take the job or sign the contract.{% endblock %}">
+<link rel="canonical" href="{{ origin }}{{ base }}{{ path }}">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"></noscript>
+<link rel="stylesheet" href="{{ base }}static/style.css?v={{ v }}">
+<link rel="icon" href="{{ base }}static/favicon.svg?v={{ v }}" type="image/svg+xml">
+{% if adsense_pub %}<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-{{ adsense_pub }}" crossorigin="anonymous"></script>{% endif %}
+{% block head %}{% endblock %}
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="{{ base }}">Injury<em>Rate</em></a>
+  <nav>
+    <a href="{{ base }}">Look up an employer</a>
+    <a href="{{ base }}companies/">Companies</a>
+    <a href="{{ base }}industries/">Industries</a>
+    <a href="{{ base }}rankings/highest-injury-rate/">Rankings</a>
+  </nav>
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>
+  <p><a href="{{ base }}about/">About</a> · <a href="{{ base }}methodology/">Data & method</a> · <a href="{{ base }}guide/trc-dart/">TRC & DART explained</a> · <a href="{{ base }}guide/check-a-company/">Check a company's OSHA record</a> · <a href="{{ base }}privacy/">Privacy</a> · <a href="{{ base }}contact/">Contact</a></p>
+  <p class="muted">Figures are self-reported by employers to OSHA's Injury Tracking Application (Form 300A, calendar {{ latest }}, filed by March 2, {{ latest|int + 1 }}). Only establishments required to file appear (20+ employees in designated industries, 250+ elsewhere). A high rate is a reason to ask questions, not a finding of fault.</p>
+</footer>
+<script src="{{ base }}static/ui.js?v={{ v }}" defer></script>
+</body>
+</html>
