@@ -36,12 +36,12 @@
     <ul class="list">{% for c in big %}<li><a href="{{ base }}{{ c.path }}">{{ c.name }}<span class="meta">TRC {{ c.trc|fmt }} · {{ c.emp|fmt(0) }} workers</span></a></li>{% endfor %}</ul>
   </div>
   <div class="sec">
-    <div class="sec-h"><h2>Highest reported rates, 5,000+ workers</h2><a href="{{ base }}rankings/highest-injury-rate/">Top 100</a></div>
-    <ul class="list">{% for c in worst %}<li><a href="{{ base }}{{ c.path }}">{{ c.name }}<span class="meta">TRC {{ c.trc|fmt }}</span></a></li>{% endfor %}</ul>
+    <div class="sec-h"><h2>How to read a rate</h2><a href="{{ base }}guide/trc-dart/">TRC & DART guide</a></div>
+    <p class="prose">A rate only means something next to its industry's reporting-site median and upper quartile, the site's own three-year record and its size. This site compares records; it does not rank employers.</p>
   </div>
 </section>
 
-<div class="sec"><div class="sec-h"><h2>Industries with the highest reported median rates</h2><a href="{{ base }}industries/">All {{ industries|length }} industries</a></div>
+<div class="sec"><div class="sec-h"><h2>Industry benchmarks, highest median first</h2><a href="{{ base }}industries/">All {{ industries|length }} industries</a></div>
 <ul class="list">{% for i in ind_top %}<li><a href="{{ base }}{{ i.path }}">{{ i.name }}<span class="meta">median TRC {{ i.trc_med|fmt }} · {{ i.n }} sites</span></a></li>{% endfor %}</ul></div>
 
 <section class="prose">

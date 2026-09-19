@@ -104,7 +104,7 @@ def main():
         (out / "index.html").write_text(env.get_template(template).render(path=path, **ctx))
         urls.append(path)
 
-    write("", "index.html", big=big_companies[:10], worst=worst_companies[:8], ind_top=ind_list[:8])
+    write("", "index.html", big=big_companies[:10], ind_top=ind_list[:8])
     for page in ("about", "methodology", "privacy", "contact"):
         write(f"{page}/", f"{page}.html")
     chunks_c = [big_companies[i:i + 300] for i in range(0, len(big_companies), 300)]
@@ -113,9 +113,7 @@ def main():
         write(cpaths[i], "companies.html", rows=rows, page_no=i + 1, page_count=len(chunks_c), prev_path=cpaths[i - 1] if i else None, next_path=cpaths[i + 1] if i + 1 < len(cpaths) else None, offset=i * 300)
     write("industries/", "industries.html", rows=ind_list)
     write("states/", "states.html")
-    write("rankings/highest-injury-rate/", "ranking.html", title=f"Large employers with the highest reported injury rates ({latest})", rows=worst_companies, kind="worst")
-    write("rankings/lowest-injury-rate/", "ranking.html", title=f"Large employers with the lowest reported injury rates ({latest})", rows=safest_companies, kind="safest")
-    write("rankings/most-fatalities/", "ranking.html", title=f"Companies reporting the most workplace fatalities ({latest})", rows=most_deaths, kind="deaths")
+    # rankings removed 2026-09-19 (owner decision): the site looks records up and compares with the industry; it does not rank employers
     write("guide/trc-dart/", "guide_trc.html")
     write("guide/check-a-company/", "guide_check.html")
     for c in companies.values():
