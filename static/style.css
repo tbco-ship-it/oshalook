@@ -674,3 +674,14 @@ header.top nav a{flex:none}
 @media (max-width:480px){.tbl.yrs .wide{display:table-cell}.tbl.yrs{font-size:.88rem}.list.fee a{gap:4px 12px;padding-block:16px}.menu li small{display:block;margin-top:3px}}
 #result .rv,#result.rv{opacity:1;transform:none;filter:none;transition:none}
 #result{scroll-margin-top:calc(var(--hdr,64px) + 16px)}
+/* Review R2 2026-09-19: readable link/CTA/fatality colours, sticky first column in year tables, quieter unit line */
+:root{--link-readable:#1b64da;--cta-readable:#1b64da;--fatal-readable:#b42335}
+@media (prefers-color-scheme:dark){:root{--link-readable:#83b4ff;--fatal-readable:#ff8c96}}
+a,.list a:hover{color:var(--link-readable)}
+.next:first-child:not(:only-child),.next:only-child{background:var(--cta-readable);color:#fff}
+.next:first-child:not(:only-child):hover,.next:only-child:hover{background:#164ea6;color:#fff}
+.fatality-note{color:var(--fatal-readable)}
+.tbl.spec.mini.yrs{overflow:visible;border-collapse:separate;border-spacing:0}
+.tbl.spec.mini.yrs th:first-child,.tbl.spec.mini.yrs td:first-child{position:sticky;left:0;z-index:1;background:var(--surface)}
+.tbl.spec.mini.yrs thead th:first-child{z-index:2}
+.sheet-num .pct{flex-basis:100%;margin-top:4px;font-size:14px;line-height:20px;font-weight:500;color:var(--text-2)}

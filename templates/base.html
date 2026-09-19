@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}{{ site }}{% endblock %}</title>
-<meta name="description" content="{% block description %}Workplace injury rates (TRC, DART, fatalities) for {{ '{:,}'.format(n_filings) }} U.S. establishments from OSHA Form 300A filings, compared with their industry. Look up an employer before you take the job or sign the contract.{% endblock %}">
+<meta name="description" content="{% block description %}Workplace injury rates (TRC, DART, fatalities) for {{ n_filings|fmt(0) }} U.S. establishments from OSHA Form 300A filings, compared with their industry. Look up an employer before you take the job or sign the contract.{% endblock %}">
 <link rel="canonical" href="{{ origin }}{{ base }}{{ path }}">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preload" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
@@ -29,7 +29,7 @@
 </main>
 <footer>
   <p><a href="{{ base }}about/">About</a> · <a href="{{ base }}methodology/">Data & method</a> · <a href="{{ base }}guide/trc-dart/">TRC & DART explained</a> · <a href="{{ base }}guide/check-a-company/">Check a company's OSHA record</a> · <a href="{{ base }}privacy/">Privacy</a> · <a href="{{ base }}contact/">Contact</a></p>
-  <p class="muted">Figures are self-reported by employers to OSHA's Injury Tracking Application (Form 300A, calendar {{ latest }}, filed by March 2, {{ latest|int + 1 }}). Only establishments required to file appear (20+ employees in designated industries, 250+ elsewhere). A high rate is a reason to ask questions, not a finding of fault.</p>
+  <p class="muted">Employer-reported OSHA Form 300A data (Injury Tracking Application) for calendar {{ latest }}. Coverage depends on reporting requirements and submissions; some voluntary filers are included and some small or low-hazard employers are partially exempt from routine recordkeeping. This is not a census of U.S. workplaces. A high rate is a reason to ask questions, not a finding of fault.</p>
 </footer>
 <script src="{{ base }}static/ui.js?v={{ v }}" defer></script>
 </body>

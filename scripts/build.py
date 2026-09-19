@@ -17,7 +17,9 @@ SIZE = {"1": "under 20 employees", "2": "20–249 employees", "21": "20–99 emp
 
 
 def fmt(n, dec=2):
-    return "—" if n is None else (f"{n:,.{dec}f}" if isinstance(n, float) else f"{n:,}")
+    if n is None:
+        return "Not available"
+    return f"{n:,.{dec}f}" if isinstance(n, float) else f"{n:,}"
 
 
 def verdict(rate, bench):
@@ -65,13 +67,14 @@ def main():
     for code, i in industries.items():
         i["path"] = f"industry/{code}/"
         i["ests"] = sorted([e for e in pages if e["naics"] == code and e["years"][latest]["ok"]], key=lambda e: -e["years"][latest]["emp"])[:60]
-        i["companies"] = sorted([c for c in companies.values() if c["naics"] == code], key=lambda c: -c["emp"])[:30]
+        i["companies"] = sorted([c for c in companies.values() if c["naics"] == code and c["emp"]], key=lambda c: -c["emp"])[:30]
     for st, s in states.items():
         s["path"] = f"state/{st.lower()}/"
         s["ests"] = sorted([e for e in pages if e["st"] == st and e["years"][latest]["ok"]], key=lambda e: -e["years"][latest]["emp"])[:80]
-    big_companies = sorted(companies.values(), key=lambda c: -c["emp"])
-    worst_companies = sorted([c for c in companies.values() if c["emp"] >= 5000], key=lambda c: -c["trc"])[:100]
-    safest_companies = sorted([c for c in companies.values() if c["emp"] >= 5000 and c["bench"]], key=lambda c: c["trc"])[:100]
+    big_companies = sorted(companies.values(), key=lambda c: -(c["emp"] or 0))
+    rated = [c for c in companies.values() if c["trc"] is not None]  # groups with no rate-eligible filing keep their page and fatalities, but are not ranked
+    worst_companies = sorted([c for c in rated if c["emp"] >= 5000], key=lambda c: -c["trc"])[:100]
+    safest_companies = sorted([c for c in rated if c["emp"] >= 5000 and c["bench"]], key=lambda c: c["trc"])[:100]
     most_deaths = sorted([c for c in companies.values() if c["deaths"]], key=lambda c: -c["deaths"])[:100]
     ind_list = sorted(industries.values(), key=lambda i: -i["trc_med"])
 
@@ -90,6 +93,7 @@ def main():
     DIST.mkdir()
     shutil.copytree(ROOT / "static", DIST / "static")
     shutil.copytree(ROOT / "data/shards", DIST / "static/shards")
+    shutil.copytree(ROOT / "data/company-sites", DIST / "static/company-sites")
     (DIST / "static/companies.json").write_text(json.dumps([[c["name"], c["slug"], c["n_est"], c["trc"], c["emp"], c["dart"], c["deaths"]] for c in big_companies], separators=(",", ":")))
 
     urls = []
@@ -103,7 +107,10 @@ def main():
     write("", "index.html", big=big_companies[:10], worst=worst_companies[:8], ind_top=ind_list[:8])
     for page in ("about", "methodology", "privacy", "contact"):
         write(f"{page}/", f"{page}.html")
-    write("companies/", "companies.html", rows=big_companies[:300])
+    chunks_c = [big_companies[i:i + 300] for i in range(0, len(big_companies), 300)]
+    cpaths = ["companies/" if i == 0 else f"companies/page/{i + 1}/" for i in range(len(chunks_c))]
+    for i, rows in enumerate(chunks_c):
+        write(cpaths[i], "companies.html", rows=rows, page_no=i + 1, page_count=len(chunks_c), prev_path=cpaths[i - 1] if i else None, next_path=cpaths[i + 1] if i + 1 < len(cpaths) else None, offset=i * 300)
     write("industries/", "industries.html", rows=ind_list)
     write("states/", "states.html")
     write("rankings/highest-injury-rate/", "ranking.html", title=f"Large employers with the highest reported injury rates ({latest})", rows=worst_companies, kind="worst")

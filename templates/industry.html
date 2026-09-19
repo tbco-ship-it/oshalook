@@ -5,15 +5,16 @@
 <nav class="crumbs"><a href="{{ base }}">Home</a> › <a href="{{ base }}industries/">Industries</a> › {{ i.name }}</nav>
 <h1>{{ i.name }} injury rate</h1>
 <section class="sheet quiet">
-  <p class="sheet-label">NAICS {{ i.code }} · {{ i.n }} sites filing for {{ latest }}</p>
+  <p class="sheet-label">NAICS {{ i.code }} · {{ latest }} · {{ i.n|fmt(0) }} of {{ i.n_all|fmt(0) }} filings included in rate calculations</p>
   <div class="sheet-num"><span class="num">{{ i.trc_med|fmt }}</span><span class="pct">median TRC</span></div>
   <p class="sheet-title">Quartiles {{ i.trc_q1|fmt }} – {{ i.trc_med|fmt }} – {{ i.trc_q3|fmt }} · hours-weighted {{ i.trc_pooled|fmt }}</p>
-  <p class="sheet-text">Median DART {{ i.dart_med|fmt }} (upper quartile {{ i.dart_q3|fmt }}). {{ '{:,}'.format(i.cases) }} recordable cases and {{ i.deaths }} death{{ '' if i.deaths == 1 else 's' }} reported across {{ '{:,}'.format(i.hrs) }} hours. All-industry median {{ us.trc_med|fmt }}.</p>
+  <p class="sheet-text">Median DART {{ i.dart_med|fmt }} (upper quartile {{ i.dart_q3|fmt }}). {{ i.cases|fmt(0) }} recordable cases and {{ i.deaths }} death{{ '' if i.deaths == 1 else 's' }} reported across {{ i.hrs|fmt(0) }} hours. All-industry median {{ us.trc_med|fmt }}.</p>
+  <p class="muted small">Case and hour totals use included filings; fatality totals also include filings excluded from rate calculations. Industry title is the official NAICS name.</p>
 </section>
 <div class="ad-slot"><!-- ad: industry --></div>
-{% if i.companies %}<div class="sec"><div class="sec-h"><h2>Largest companies in this industry</h2></div>
-<ul class="list fee">{% for c in i.companies %}<li><a href="{{ base }}{{ c.path }}"><span class="nm">{{ c.name }}<small class="rule">{{ c.n_est }} sites · {{ '{:,}'.format(c.emp) }} workers{% if c.deaths %} · {{ c.deaths }} deaths{% endif %}</small></span><span class="meta"><b>TRC {{ c.trc|fmt }}</b><small>DART {{ c.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
+{% if i.companies %}<div class="sec"><div class="sec-h"><h2>Company groups whose most common reported industry is this one</h2></div>
+<ul class="list fee">{% for c in i.companies %}<li><a href="{{ base }}{{ c.path }}"><span class="nm">{{ c.name }}<small class="rule">{{ c.n_est }} sites · {{ c.emp|fmt(0) }} workers{% if c.deaths %} · {{ c.deaths }} deaths{% endif %}</small></span><span class="meta"><b>TRC {{ c.trc|fmt }}</b><small>DART {{ c.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
 {% if i.ests %}<div class="sec"><div class="sec-h"><h2>Largest sites</h2></div>
-<ul class="list fee">{% for e in i.ests %}{% set y = e.years[latest] %}<li><a href="{{ base }}{{ e.path }}"><span class="nm">{{ e.name }}<small class="rule">{{ e.city }}, {{ e.st }} · {{ '{:,}'.format(y.emp) }} workers · {{ y.cases }} cases</small></span><span class="meta"><b>TRC {{ y.trc|fmt }}</b><small>DART {{ y.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
+<ul class="list fee">{% for e in i.ests %}{% set y = e.years[latest] %}<li><a href="{{ base }}{{ e.path }}"><span class="nm">{{ e.name }}<small class="rule">{{ e.city }}, {{ e.st }} · {{ y.emp|fmt(0) }} workers · {{ y.cases }} cases</small></span><span class="meta"><b>TRC {{ y.trc|fmt }}</b><small>DART {{ y.dart|fmt }}</small></span></a></li>{% endfor %}</ul></div>{% endif %}
 <section class="prose"><h2>Using the benchmark</h2><p>Compare a site's TRC with the median and upper quartile above, not with the all-industry number: a 3.0 reads very differently in meatpacking and in software. These benchmarks describe the reporting establishments included here, not all U.S. employers. The median gives each establishment equal weight; BLS estimates use survey weights and pooled cases and hours, so the figures are not directly interchangeable and differences can go in either direction.</p></section>
 {% endblock %}

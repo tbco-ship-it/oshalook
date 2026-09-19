@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Injury rates of the 300 largest U.S. employers filing with OSHA ({{ latest }}) | {{ site }}{% endblock %}
+{% block title %}Employer injury-rate directory{% if page_no > 1 %} — page {{ page_no }}{% endif %} ({{ latest }}) | {{ site }}{% endblock %}
 {% block description %}TRC and DART for the largest employers in OSHA's Form 300A data, by total workers across filing sites.{% endblock %}
 {% block content %}
 <nav class="crumbs"><a href="{{ base }}">Home</a> › Companies</nav>
-<h1>Largest employers and their injury rates</h1>
-<p class="prose">Ranked by workers across sites that filed Form 300A for {{ latest }}. All-filer median TRC {{ us.trc_med|fmt }}. Rankings: <a href="{{ base }}rankings/highest-injury-rate/">highest vs. industry</a> · <a href="{{ base }}rankings/lowest-injury-rate/">lowest</a> · <a href="{{ base }}rankings/most-fatalities/">most fatalities</a>.</p>
+<h1>Employer injury-rate directory{% if page_no > 1 %} — page {{ page_no }} of {{ page_count }}{% endif %}</h1>
+<p class="prose">Every company-name group with 5+ filing sites, largest workforce first (entries {{ offset + 1 }}–{{ offset + rows|length }} of {{ companies|length|fmt(0) }}). All-filer median TRC {{ us.trc_med|fmt }}. Rankings: <a href="{{ base }}rankings/highest-injury-rate/">highest reported rates</a> · <a href="{{ base }}rankings/lowest-injury-rate/">lowest</a> · <a href="{{ base }}rankings/most-fatalities/">most fatalities</a>.</p>
 <div class="ad-slot"><!-- ad: companies --></div>
-<ul class="list fee">{% for c in rows %}<li><a href="{{ base }}{{ c.path }}"><span class="nm">{{ c.name }}<small class="rule">{{ c.industry }} · {{ c.n_est }} sites · {{ '{:,}'.format(c.emp) }} workers{% if c.deaths %} · {{ c.deaths }} deaths{% endif %}</small></span><span class="meta"><b>TRC {{ c.trc|fmt }}</b>{% if c.bench %}<small>site median {{ c.bench.trc_med|fmt }}</small>{% endif %}</span></a></li>{% endfor %}</ul>
+<ul class="list fee">{% for c in rows %}<li><a href="{{ base }}{{ c.path }}"><span class="nm">{{ c.name }}<small class="rule">{{ c.industry }} · {{ c.n_est }} sites · {{ c.emp|fmt(0) }} workers{% if c.deaths %} · {{ c.deaths }} deaths{% endif %}</small></span><span class="meta"><b>TRC {{ c.trc|fmt }}</b>{% if c.bench %}<small>site median {{ c.bench.trc_med|fmt }}</small>{% endif %}</span></a></li>{% endfor %}</ul>
+<nav class="sheet-actions" aria-label="Company directory pages">{% if prev_path %}<a class="next" href="{{ base }}{{ prev_path }}">Previous</a>{% endif %}{% if next_path %}<a class="next" href="{{ base }}{{ next_path }}">Next page</a>{% endif %}</nav>
 {% endblock %}

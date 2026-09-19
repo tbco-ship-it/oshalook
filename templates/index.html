@@ -1,25 +1,29 @@
 {% extends "base.html" %}
-{% block title %}Workplace injury rate lookup — OSHA 300A injury, illness and fatality records for {{ '{:,}'.format(n_filings) }} employers | {{ site }}{% endblock %}
+{% block title %}OSHA injury rate lookup: companies and worksites | {{ site }}{% endblock %}
+{% block description %}Search {{ n_filings|fmt(0) }} establishment filings for {{ latest }}. View reported nonfatal cases, TRC, DART, fatalities and available yearly records.{% endblock %}
 {% block head %}<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"{{ site }}","applicationCategory":"BusinessApplication","inLanguage":"en","url":"{{ origin }}{{ base }}","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <script>document.documentElement.classList.add('landing')</script>{% endblock %}
 {% block content %}
 <div class="stage" id="stage">
 <section class="hero">
   <h1>What injury rate did this employer report?</h1>
-  <p>Search a company or worksite. See the nonfatal injury and illness rate it reported to OSHA for {{ latest }}, reported fatalities, and the yearly records available. {{ '{:,}'.format(n_filings) }} establishments.</p>
+  <p>Search a company or worksite. See the nonfatal injury and illness rate it reported to OSHA for {{ latest }}, reported fatalities, and the yearly records available. {{ n_filings|fmt(0) }} establishments.</p>
 </section>
 
 <section class="calc-grid">
 <div class="calc card" id="calc">
   <h2 class="card-title">Employer or worksite</h2>
-  <label class="field">Name, then optional city or state
-    <input id="q" class="pick search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-menu" autocomplete="off" data-year="{{ latest }}" placeholder="e.g. Amazon fulfillment, Tyson Foods, UPS Louisville"><ul class="menu" id="q-menu" role="listbox" hidden></ul>
+  <label class="field">Company or worksite name
+    <input id="q" class="pick search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="q-menu" autocomplete="off" data-year="{{ latest }}" placeholder="e.g. Amazon, Tyson Foods, UPS"><ul class="menu" id="q-menu" role="listbox" hidden></ul>
+  </label>
+  <label class="field">City or state abbreviation <span class="muted small">(optional)</span>
+    <input id="place" class="pick" type="text" autocomplete="off" placeholder="e.g. Louisville or KY">
   </label>
   <p id="search-status" role="status" aria-live="polite" class="muted small" hidden></p>
-  <p class="muted small">Start with the worksite's filed name; add a city to narrow the results. Company groups (5+ sites) appear first.</p>
+  <p class="muted small">Worksite names are as the employer filed them. Choosing a company group lists all of its matched worksites, filtered by the place you typed.</p>
   <button type="button" class="last" id="last" hidden><span>Last lookup</span><b id="last-name"></b></button>
 </div>
-<div id="result" class="result" aria-live="polite"></div>
+<div id="result" class="result"></div>
 </section>
 </div>
 
@@ -29,7 +33,7 @@
 <section class="grid2">
   <div class="sec">
     <div class="sec-h"><h2>Largest employers filing</h2><a href="{{ base }}companies/">All companies</a></div>
-    <ul class="list">{% for c in big %}<li><a href="{{ base }}{{ c.path }}">{{ c.name }}<span class="meta">TRC {{ c.trc|fmt }} · {{ '{:,}'.format(c.emp) }} workers</span></a></li>{% endfor %}</ul>
+    <ul class="list">{% for c in big %}<li><a href="{{ base }}{{ c.path }}">{{ c.name }}<span class="meta">TRC {{ c.trc|fmt }} · {{ c.emp|fmt(0) }} workers</span></a></li>{% endfor %}</ul>
   </div>
   <div class="sec">
     <div class="sec-h"><h2>Highest reported rates, 5,000+ workers</h2><a href="{{ base }}rankings/highest-injury-rate/">Top 100</a></div>
