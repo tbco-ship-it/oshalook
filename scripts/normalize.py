@@ -36,7 +36,7 @@ def slug(s):
 
 def norm_name(s):
     s = (s or "").lower()
-    s = re.sub(r"\b(inc|incorporated|llc|l\.l\.c|corp|corporation|co|company|ltd|lp|l\.p|plc|the)\b\.?", " ", s)
+    s = re.sub(r"\b(inc|incorporated|llc|l\.l\.c|corp|corporation|company|ltd|lp|l\.p|plc|the)\b\.?", " ", s)
     return re.sub(r"[^a-z0-9]", "", s)
 
 
@@ -78,17 +78,19 @@ def main():
             if e["industry"]:
                 ind_name.setdefault(e["naics"], e["industry"])
 
-    def bench(vals):
+    def bench(vals, all_vals=None):
+        """vals = rate-valid filings; all_vals (default vals) = every filing, used for the fatality count so a typo'd hours field never hides a death."""
+        all_vals = all_vals if all_vals is not None else vals
         t = sorted(v["trc"] for v in vals); d = sorted(v["dart"] for v in vals)
         q = lambda a, p: a[min(len(a) - 1, int(len(a) * p))]
-        return {"n": len(vals), "trc_med": round(median(t), 2), "trc_q1": round(q(t, .25), 2), "trc_q3": round(q(t, .75), 2), "dart_med": round(median(d), 2), "dart_q3": round(q(d, .75), 2),
-                "deaths": sum(v["deaths"] for v in vals), "cases": sum(v["cases"] for v in vals), "hrs": sum(v["hrs"] for v in vals),
+        return {"n": len(vals), "n_all": len(all_vals), "trc_med": round(median(t), 2), "trc_q1": round(q(t, .25), 2), "trc_q3": round(q(t, .75), 2), "dart_med": round(median(d), 2), "dart_q3": round(q(d, .75), 2),
+                "deaths": sum(v["deaths"] for v in all_vals), "cases": sum(v["cases"] for v in vals), "hrs": sum(v["hrs"] for v in vals),
                 "trc_pooled": round(sum(v["cases"] for v in vals) * 200000 / max(1, sum(v["hrs"] for v in vals)), 2),
                 "dart_pooled": round(sum(v["dafw"] + v["djtr"] for v in vals) * 200000 / max(1, sum(v["hrs"] for v in vals)), 2)}
     industries = {}
     for code, vals in ind.items():
         if len(vals) >= MIN_N_BENCH:
-            industries[code] = {"code": code, "name": ind_name[code], **bench(vals)}
+            industries[code] = {"code": code, "name": ind_name[code], **bench(vals, [e["years"][LATEST] for e in ests if e["naics"] == code])}
     # fallback benchmark by NAICS prefix (4, 3, 2 digits)
     prefix = defaultdict(list)
     for code, vals in ind.items():
@@ -116,18 +118,20 @@ def main():
         vals = [e["years"][LATEST] for e in lst if e["years"][LATEST]["ok"]]
         if not vals:
             continue
+        all_vals = [e["years"][LATEST] for e in lst]
         name = max((e["company"] or e["name"] for e in lst), key=lambda s: sum(1 for e in lst if (e["company"] or e["name"]) == s))
         cs = slug(name)
         n = 2
         while cs in companies:
             cs = f"{slug(name)}-{n}"; n += 1
-        b = bench(vals)
+        b = bench(vals, all_vals)
         top_naics = max(set(e["naics"] for e in lst), key=lambda c: sum(1 for e in lst if e["naics"] == c))
         by_year = {}
         for y in YEARS:
             yv = [e["years"][y] for e in lst if y in e["years"] and e["years"][y]["ok"]]
+            ya = [e["years"][y] for e in lst if y in e["years"]]
             if yv:
-                by_year[y] = {"n": len(yv), "trc": round(sum(v["cases"] for v in yv) * 200000 / sum(v["hrs"] for v in yv), 2), "dart": round(sum(v["dafw"] + v["djtr"] for v in yv) * 200000 / sum(v["hrs"] for v in yv), 2), "deaths": sum(v["deaths"] for v in yv), "cases": sum(v["cases"] for v in yv), "emp": sum(v["emp"] for v in yv)}
+                by_year[y] = {"n": len(yv), "n_all": len(ya), "trc": round(sum(v["cases"] for v in yv) * 200000 / sum(v["hrs"] for v in yv), 2), "dart": round(sum(v["dafw"] + v["djtr"] for v in yv) * 200000 / sum(v["hrs"] for v in yv), 2), "deaths": sum(v["deaths"] for v in ya), "cases": sum(v["cases"] for v in yv), "emp": sum(v["emp"] for v in yv)}
         companies[cs] = {"slug": cs, "name": name, "key": k, "n_est": len(lst), "naics": top_naics, "industry": ind_name.get(top_naics) or next((e["industry"] for e in lst if e["industry"]), ""), "states": sorted({e["st"] for e in lst}),
                          "trc": b["trc_pooled"], "dart": b["dart_pooled"], "deaths": b["deaths"], "cases": b["cases"], "emp": sum(v["emp"] for v in vals), "by_year": by_year,
                          "est_ids": [e["id"] for e in sorted(lst, key=lambda e: -(e["years"][LATEST]["emp"]))]}
@@ -156,7 +160,7 @@ def main():
     for e in ests:
         yv = e["years"][LATEST]
         k = (norm_name(e["name"]) + "zz")[:2]
-        shards[k].append([e["id"], e["name"], e["city"], e["st"], e["naics"], yv["emp"], yv["trc"], yv["dart"], yv["deaths"], e["path"] if e["id"] in page_ids else "", norm_name(e["company"])[:24]])
+        shards[k].append([e["id"], e["name"], e["city"], e["st"], e["naics"], yv["emp"], yv["trc"], yv["dart"], yv["deaths"], e["path"] if e["id"] in page_ids else "", norm_name(e["company"])[:24], 1 if e["naics"] in industries else 0])
     sd = ROOT / "data/shards"
     sd.mkdir(exist_ok=True)
     for f in sd.glob("*.json"):
@@ -168,8 +172,8 @@ def main():
     for e in ests:
         if e["st"] in STATES:
             states.setdefault(e["st"], []).append(e["years"][LATEST])
-    state_bench = {st: {"st": st, "name": STATES[st], **bench([v for v in vals if v["ok"]])} for st, vals in states.items() if sum(1 for v in vals if v["ok"]) >= MIN_N_BENCH}
-    us = bench([e["years"][LATEST] for e in ests if e["years"][LATEST]["ok"]])
+    state_bench = {st: {"st": st, "name": STATES[st], **bench([v for v in vals if v["ok"]], vals)} for st, vals in states.items() if sum(1 for v in vals if v["ok"]) >= MIN_N_BENCH}
+    us = bench([e["years"][LATEST] for e in ests if e["years"][LATEST]["ok"]], [e["years"][LATEST] for e in ests])
     out = {"source": {"name": "OSHA Injury Tracking Application, Form 300A summary data", "url": "https://www.osha.gov/itadata", "years": YEARS, "latest": LATEST, "fetched": "2026-09-19", "n_filings": len(ests)},
            "us": us, "states": state_bench, "industries": industries, "prefix_bench": prefix_bench, "companies": companies,
            "pages": [{k: e[k] for k in ("id", "name", "company", "street", "city", "st", "zip", "naics", "industry", "size", "years", "path", "bench_code", "bench", "company_slug")} for e in pages]}

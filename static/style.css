@@ -663,3 +663,14 @@ header.top nav a{flex:none}
 
 .tbl.yrs th,.tbl.yrs td{padding-left:6px;padding-right:6px}
 @media(max-width:480px){.tbl.yrs .wide{display:none}.tbl.yrs{font-size:.88rem}}
+/* review round 1 */
+.fatality-note{margin:6px 0 0;font-weight:700;color:var(--red)}
+.sheet.quiet{background:var(--surface);background-image:none}
+.table-scroll{max-width:100%;overflow-x:auto;margin-top:16px;-webkit-overflow-scrolling:touch}
+.tbl.spec.mini.yrs{width:100%;min-width:560px;table-layout:fixed;margin-top:0}
+.tbl.spec.mini.yrs th,.tbl.spec.mini.yrs td{width:auto;padding:12px 10px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl.spec.mini.yrs th:first-child,.tbl.spec.mini.yrs td:first-child{width:64px;text-align:left}
+.tbl.spec.mini.yrs caption{text-align:left;padding:0 0 6px;font-weight:500}
+@media (max-width:480px){.tbl.yrs .wide{display:table-cell}.tbl.yrs{font-size:.88rem}.list.fee a{gap:4px 12px;padding-block:16px}.menu li small{display:block;margin-top:3px}}
+#result .rv,#result.rv{opacity:1;transform:none;filter:none;transition:none}
+#result{scroll-margin-top:calc(var(--hdr,64px) + 16px)}

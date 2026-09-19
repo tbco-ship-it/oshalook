@@ -25,12 +25,12 @@ def verdict(rate, bench):
     if rate is None or not bench:
         return "quiet", "Not enough data"
     if rate == 0:
-        return "balanced", "No recordable injuries"
+        return "quiet", "No nonfatal recordable cases reported"
     if rate <= bench["trc_med"]:
-        return "balanced", "At or below the industry median"
+        return "quiet", "At or below the reporting-site median"
     if rate <= bench["trc_q3"]:
-        return "mild", "Above the industry median"
-    return "severe", "In the worst quarter of the industry"
+        return "quiet", "Above the reporting-site median"
+    return "quiet", "Above the reporting-site 75th percentile"
 
 
 def main():
@@ -57,8 +57,11 @@ def main():
         c["path"] = f"company/{c['slug']}/"
         b = industries.get(c["naics"]) or d["prefix_bench"].get(c["naics"][:4]) or d["prefix_bench"].get(c["naics"][:3]) or d["prefix_bench"].get(c["naics"][:2])
         c["bench"] = b
-        c["cls"], c["label"] = verdict(c["trc"], b)
-        c["ests"] = [by_id[i] for i in c["est_ids"] if i in by_id][:40]
+        c["cls"], c["label"] = "quiet", "Combined rate for name-matched reporting sites"
+        c["ests_all"] = [by_id[i] for i in c["est_ids"] if i in by_id]
+        c["ests"] = c["ests_all"][:200]
+        c["n_large_sites"] = len(c["ests_all"])
+        c["included"] = c["by_year"].get(latest, {}).get("n", 0)
     for code, i in industries.items():
         i["path"] = f"industry/{code}/"
         i["ests"] = sorted([e for e in pages if e["naics"] == code and e["years"][latest]["ok"]], key=lambda e: -e["years"][latest]["emp"])[:60]
@@ -67,7 +70,7 @@ def main():
         s["path"] = f"state/{st.lower()}/"
         s["ests"] = sorted([e for e in pages if e["st"] == st and e["years"][latest]["ok"]], key=lambda e: -e["years"][latest]["emp"])[:80]
     big_companies = sorted(companies.values(), key=lambda c: -c["emp"])
-    worst_companies = sorted([c for c in companies.values() if c["emp"] >= 5000 and c["bench"]], key=lambda c: -(c["trc"] / max(0.1, c["bench"]["trc_med"])))[:100]
+    worst_companies = sorted([c for c in companies.values() if c["emp"] >= 5000], key=lambda c: -c["trc"])[:100]
     safest_companies = sorted([c for c in companies.values() if c["emp"] >= 5000 and c["bench"]], key=lambda c: c["trc"])[:100]
     most_deaths = sorted([c for c in companies.values() if c["deaths"]], key=lambda c: -c["deaths"])[:100]
     ind_list = sorted(industries.values(), key=lambda i: -i["trc_med"])
@@ -87,7 +90,7 @@ def main():
     DIST.mkdir()
     shutil.copytree(ROOT / "static", DIST / "static")
     shutil.copytree(ROOT / "data/shards", DIST / "static/shards")
-    (DIST / "static/companies.json").write_text(json.dumps([[c["name"], c["slug"], c["n_est"], c["trc"], c["emp"]] for c in big_companies], separators=(",", ":")))
+    (DIST / "static/companies.json").write_text(json.dumps([[c["name"], c["slug"], c["n_est"], c["trc"], c["emp"], c["dart"], c["deaths"]] for c in big_companies], separators=(",", ":")))
 
     urls = []
 
@@ -103,8 +106,8 @@ def main():
     write("companies/", "companies.html", rows=big_companies[:300])
     write("industries/", "industries.html", rows=ind_list)
     write("states/", "states.html")
-    write("rankings/highest-injury-rate/", "ranking.html", title=f"Companies with the highest injury rates vs. their industry ({latest})", rows=worst_companies, kind="worst")
-    write("rankings/lowest-injury-rate/", "ranking.html", title=f"Large employers with the lowest injury rates ({latest})", rows=safest_companies, kind="safest")
+    write("rankings/highest-injury-rate/", "ranking.html", title=f"Large employers with the highest reported injury rates ({latest})", rows=worst_companies, kind="worst")
+    write("rankings/lowest-injury-rate/", "ranking.html", title=f"Large employers with the lowest reported injury rates ({latest})", rows=safest_companies, kind="safest")
     write("rankings/most-fatalities/", "ranking.html", title=f"Companies reporting the most workplace fatalities ({latest})", rows=most_deaths, kind="deaths")
     write("guide/trc-dart/", "guide_trc.html")
     write("guide/check-a-company/", "guide_check.html")
