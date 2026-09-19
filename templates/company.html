@@ -7,14 +7,14 @@
 <nav class="crumbs"><a href="{{ base }}">Home</a> › <a href="{{ base }}companies/">Companies</a> › {{ c.name }}</nav>
 <h1>{{ c.name }} injury rate</h1>
 <section class="sheet {{ c.cls }}">
-  <p class="sheet-label">{{ c.n_est }} filing sites · {{ c.industry }} · {{ c.states|length }} state{{ '' if c.states|length == 1 else 's' }}</p>
+  <p class="sheet-label">{{ c.n_est }} filing sites · {{ c.industry or ("NAICS " ~ c.naics) }} · {{ c.states|length }} state{{ '' if c.states|length == 1 else 's' }}</p>
   <div class="sheet-num"><span class="num">{{ c.trc|fmt }}</span><span class="pct">TRC · {{ latest }}</span></div>
   <p class="sheet-title">{{ c.label }}{% if c.bench %} — industry median {{ c.bench.trc_med|fmt }}{% endif %}</p>
   <p class="sheet-text">{{ '{:,}'.format(c.cases) }} recordable cases among {{ '{:,}'.format(c.emp) }} workers, hours-weighted across all sites. DART {{ c.dart|fmt }}.{% if c.deaths %} <b>{{ c.deaths }} workplace death{{ '' if c.deaths == 1 else 's' }} reported.</b>{% endif %}</p>
-  <table class="tbl spec mini"><thead><tr><th>Year</th><th>Sites</th><th>Workers</th><th>TRC</th><th>DART</th><th>Cases</th><th>Deaths</th></tr></thead><tbody>
-  {% for yr in years|reverse %}{% set r = c.by_year.get(yr) %}<tr><th>{{ yr }}</th>{% if r %}<td>{{ r.n }}</td><td>{{ '{:,}'.format(r.emp) }}</td><td>{{ r.trc|fmt }}</td><td>{{ r.dart|fmt }}</td><td>{{ '{:,}'.format(r.cases) }}</td><td>{{ r.deaths }}</td>{% else %}<td colspan="6" class="muted">no filings</td>{% endif %}</tr>{% endfor %}
+  <table class="tbl spec mini yrs"><thead><tr><th>Year</th><th>TRC</th><th>DART</th><th>Cases</th><th>Deaths</th><th class="wide">Sites</th><th class="wide">Workers</th></tr></thead><tbody>
+  {% for yr in years|reverse %}{% set r = c.by_year.get(yr) %}<tr><th>{{ yr }}</th>{% if r %}<td>{{ r.trc|fmt }}</td><td>{{ r.dart|fmt }}</td><td>{{ '{:,}'.format(r.cases) }}</td><td>{{ r.deaths }}</td><td class="wide">{{ r.n }}</td><td class="wide">{{ '{:,}'.format(r.emp) }}</td>{% else %}<td colspan="6" class="muted">no filings</td>{% endif %}</tr>{% endfor %}
   </tbody></table>
-  <p class="sheet-actions">{% if c.naics in industries %}<a class="next" href="{{ base }}industry/{{ c.naics }}/">{{ c.industry }} benchmark</a>{% endif %}<a class="next" href="https://www.osha.gov/ords/imis/establishment.search?establishment={{ c.name|urlencode }}" rel="noopener" target="_blank">OSHA inspections & citations</a></p>
+  <p class="sheet-actions">{% if c.naics in industries %}<a class="next" href="{{ base }}industry/{{ c.naics }}/">{{ (c.industry or "Industry")|truncate(40) }} benchmark</a>{% endif %}<a class="next" href="https://www.osha.gov/ords/imis/establishment.search?establishment={{ c.name|urlencode }}" rel="noopener" target="_blank">OSHA inspections & citations</a></p>
 </section>
 <div class="ad-slot"><!-- ad: company --></div>
 {% if c.ests %}<div class="sec"><div class="sec-h"><h2>Sites with 250+ workers, largest first</h2><span class="muted small">{{ c.ests|length }} of {{ c.n_est }}</span></div>

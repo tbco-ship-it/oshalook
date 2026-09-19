@@ -75,7 +75,8 @@ def main():
         yv = e["years"][LATEST]
         if yv["ok"] and e["naics"]:
             ind[e["naics"]].append(yv)
-            ind_name.setdefault(e["naics"], e["industry"])
+            if e["industry"]:
+                ind_name.setdefault(e["naics"], e["industry"])
 
     def bench(vals):
         t = sorted(v["trc"] for v in vals); d = sorted(v["dart"] for v in vals)
@@ -127,11 +128,14 @@ def main():
             yv = [e["years"][y] for e in lst if y in e["years"] and e["years"][y]["ok"]]
             if yv:
                 by_year[y] = {"n": len(yv), "trc": round(sum(v["cases"] for v in yv) * 200000 / sum(v["hrs"] for v in yv), 2), "dart": round(sum(v["dafw"] + v["djtr"] for v in yv) * 200000 / sum(v["hrs"] for v in yv), 2), "deaths": sum(v["deaths"] for v in yv), "cases": sum(v["cases"] for v in yv), "emp": sum(v["emp"] for v in yv)}
-        companies[cs] = {"slug": cs, "name": name, "key": k, "n_est": len(lst), "naics": top_naics, "industry": ind_name.get(top_naics, lst[0]["industry"]), "states": sorted({e["st"] for e in lst}),
+        companies[cs] = {"slug": cs, "name": name, "key": k, "n_est": len(lst), "naics": top_naics, "industry": ind_name.get(top_naics) or next((e["industry"] for e in lst if e["industry"]), ""), "states": sorted({e["st"] for e in lst}),
                          "trc": b["trc_pooled"], "dart": b["dart_pooled"], "deaths": b["deaths"], "cases": b["cases"], "emp": sum(v["emp"] for v in vals), "by_year": by_year,
                          "est_ids": [e["id"] for e in sorted(lst, key=lambda e: -(e["years"][LATEST]["emp"]))]}
     comp_slug_by_key = {c["key"]: c["slug"] for c in companies.values()}
     # establishment pages
+    for e in ests:  # blank industry descriptions: borrow the NAICS group's usual description
+        if not e["industry"]:
+            e["industry"] = ind_name.get(e["naics"], "")
     pages = []
     used = {}
     for e in ests:
